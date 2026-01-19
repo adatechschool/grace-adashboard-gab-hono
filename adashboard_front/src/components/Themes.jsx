@@ -1,79 +1,43 @@
-import { useState, useEffect } from "react"
-import { Skills } from "./Skills";
+//Themes.jsx
+import { useState, useEffect } from "react";
+import { Skills } from './Skills';
 
-export const Themes = ({data}) => {
+export const Themes = ({ data, onEditTheme }) => {
+  const [themes, setThemes] = useState(data);
 
-    const [themes, setThemes] = useState(data);
-     useEffect(() => {
-        setThemes(data);
-    }, [data]);
+  useEffect(() => {
+    setThemes(data);
+  }, [data]);
 
-    const deleteTheme = async(themeId) => {
-        try {
-            const response = await fetch(`http://localhost:3000/themes/${themeId}`, {
-                method: 'DELETE'
-            })
-            
-            if (response.ok) {
-                setThemes(themes.filter(theme => theme.id !== themeId));
-            }
-            console.log('The theme has been successfully deleted')
-        }
-        catch (error) {
-            console.log(`ERROR DELETING: ${error}`)
-        }
-    }
+  const deleteTheme = async (themeId) => {
+    await fetch(`http://localhost:3000/themes/${themeId}`, {
+      method: "DELETE",
+    });
+    setThemes(themes.filter((theme) => theme.id !== themeId));
+  };
 
-    const updateValidation = async(themeId, skillIndex, status) => {
-        
-        setThemes(prev => {
-            return prev.map(theme => {
-                if (theme.id !== themeId) {
-                    return theme;
-                }
-
-                const updateSkills = theme.skills.map ((skill, index) => {
-                    if (index !== skillIndex) {
-                        return skill;
-                    }
-                    return {
-                        ...skill,
-                        validation: status
-                    };
-                });
-                return {
-                    ...theme,
-                    skills: updateSkills
-                };
-            });
-        });
-
-        try {
-            const response = await fetch(`http://localhost:3000/themes/${themeId}/skills/${skillIndex}/${status}`, {
-                method: 'PUT'
-            })
-        }
-        catch (error) {
-            console.error(`Error updating: ${error}`)
-        }
-    }
-
-    return (
+  return (
     <div>
-        {themes.map((theme) => {
-            return (
-            <div key={theme.id}>
-            <fieldset>
-                <h2>{theme.name}</h2>
-                <button onClick={() => deleteTheme(theme.id)}>Remove this theme</button>
+      {themes.map((theme) => (
+        <div key={theme.id}>
+          <fieldset>
+            <h2>{theme.name}</h2>
+
+            <button onClick={() => deleteTheme(theme.id)}>
+              Remove this theme
+            </button>
+
+            <button onClick={() => onEditTheme(theme)}>
+              Edit Theme
+            </button>
+
             <Skills
                 themeId={theme.id}
                 skills={theme.skills}
-                onUpdateValidation={updateValidation}/>
-            </fieldset>
-            </div>          
-            )
-        })}
+                />
+          </fieldset>
+        </div>
+      ))}
     </div>
-    )
-}
+  );
+};
